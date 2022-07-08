@@ -56,15 +56,6 @@ ${({ theme: { colors } }) => css`
     border: 0;
     transition: 180ms ease-in-out;
     color: inherit;
-    color: ${colors.orange};
-    :hover {
-      color: ${tint(0.16, colors.orange)};
-      text-decoration: underline;
-    }
-    :active {
-      color: ${shade(0.16, colors.orange)};
-      text-decoration: underline;
-    }
   }
 
   button {
