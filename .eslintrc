@@ -64,7 +64,6 @@
     "no-unused-expressions": "off",
     "no-use-before-define": "off",
     "no-unneeded-ternary": "error",
-    "no-unused-vars": "off",
     "no-underscore-dangle": "off",
     "no-plusplus": [
       "error",

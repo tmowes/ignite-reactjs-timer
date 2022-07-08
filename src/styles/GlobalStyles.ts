@@ -16,12 +16,12 @@ ${({ theme: { colors } }) => css`
 
   html {
     font-size: 100%;
-    height: 100%;
   }
 
   body {
     height: 100vh;
     width: 100vw;
+    overflow: hidden;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
