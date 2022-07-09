@@ -25,11 +25,6 @@ export type Cycle = {
   finishedDate?: Date
 }
 
-export type CyclesState = {
-  cycles: Cycle[]
-  activeCycleId: string | null
-}
-
 export type CyclesContextProviderProps = {
   children: ReactNode
 }

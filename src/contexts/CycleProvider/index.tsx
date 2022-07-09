@@ -1,14 +1,38 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useState,
+} from 'react'
 
 import { differenceInSeconds } from 'date-fns'
 
+import { CYCLES_KEY_STORAGE } from '../../configs/localStorageKeys'
+import { cyclesReducer } from '../../reducers/cyclesReducer'
+import {
+  addNewCycleAction,
+  interruptCurrentCycleAction,
+  markCurrentCycleAsFinishedAction,
+} from '../../reducers/cyclesReducer/actions'
 import { CreateCycleData, Cycle, CyclesContextData, CyclesContextProviderProps } from './types'
 
 export const CyclesContext = createContext({} as CyclesContextData)
 
+const cyclesInitialState = {
+  cycles: [],
+  activeCycleId: null,
+}
+
 export function CyclesProvider({ children }: CyclesContextProviderProps) {
-  const [cycles, setCycles] = useState<Cycle[]>([])
-  const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
+  const [cyclesState, dispatch] = useReducer(cyclesReducer, cyclesInitialState, () => {
+    const storedStateAsJSON = localStorage.getItem(CYCLES_KEY_STORAGE)
+    return storedStateAsJSON ? JSON.parse(storedStateAsJSON) : cyclesInitialState
+  })
+
+  const { cycles, activeCycleId } = cyclesState
 
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
 
@@ -21,34 +45,27 @@ export function CyclesProvider({ children }: CyclesContextProviderProps) {
   }
 
   const markCurrentCycleAsFinished = useCallback(() => {
-    setCycles((prev) =>
-      prev.map((cycle) => (cycle.id === activeCycleId ? { ...cycle, finished: true } : cycle)),
-    )
-    setActiveCycleId(null)
-  }, [activeCycleId])
+    dispatch(markCurrentCycleAsFinishedAction())
+  }, [])
 
   function createNewCycle({ task, minutesAmount }: CreateCycleData) {
-    const id = String(new Date().getTime())
     const newCycle: Cycle = {
-      id,
+      id: String(new Date().getTime()),
       task,
       minutesAmount,
       startDate: new Date(),
     }
-    setCycles((prev) => [...prev, newCycle])
-    setActiveCycleId(id)
+    dispatch(addNewCycleAction(newCycle))
     setAmountSecondsPassed(0)
   }
 
   const interruptCurrentCycle = useCallback(() => {
-    console.log('interruptCurrentCycle')
-    setCycles((prev) =>
-      prev.map((cycle) =>
-        cycle.id === activeCycleId ? { ...cycle, interruptedDate: new Date() } : cycle,
-      ),
-    )
-    setActiveCycleId(null)
-  }, [activeCycleId])
+    dispatch(interruptCurrentCycleAction())
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem(CYCLES_KEY_STORAGE, JSON.stringify(cyclesState))
+  }, [cyclesState])
 
   const providerValues = useMemo(
     () => ({
