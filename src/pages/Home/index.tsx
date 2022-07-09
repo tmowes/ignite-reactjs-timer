@@ -1,72 +1,48 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Play } from 'phosphor-react'
-import { useForm } from 'react-hook-form'
+import { HandPalm, Play } from 'phosphor-react'
+import { FormProvider, useForm } from 'react-hook-form'
 
-import { CountdownTimer } from '../../components/CountdownTimer'
-import { NewCycleFormData, newCycleFormSchema } from './formValidationSchema'
+import { useCycles } from '../../contexts'
+import { CountdownTimer, NewCycleForm } from './components'
+import { NewCycleFormData, newCycleFormSchema } from './newCycleFormSchema'
 import * as S from './styles'
 
 export function Home() {
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-    reset,
-  } = useForm<NewCycleFormData>({
+  const { activeCycle, createNewCycle, interruptCurrentCycle } = useCycles()
+  const newCycleForm = useForm<NewCycleFormData>({
     resolver: zodResolver(newCycleFormSchema),
     defaultValues: {
       task: '',
       minutesAmount: 0,
     },
   })
+  const { handleSubmit, watch, reset } = newCycleForm
 
   const onSubmitNewCycle = (data: NewCycleFormData) => {
-    console.log(data)
+    createNewCycle(data)
     reset()
   }
 
-  console.log(errors)
-
-  const isSubmitDisabled = !watch('task')
+  const isSubmitDisabled = !watch('task').trim()
 
   return (
     <S.Container>
       <S.Form onSubmit={handleSubmit(onSubmitNewCycle)}>
-        <S.FormHeader>
-          <S.Label htmlFor="task">Vou trabalhar em</S.Label>
-          <S.TaskInput
-            type="text"
-            id="task"
-            list="task-suggestions"
-            placeholder="Ex: Ajustar o meu Design System"
-            {...register('task', { required: true })}
-          />
-          <datalist id="task-suggestions">
-            <option value="Projeto 1" />
-            <option value="Projeto 2" />
-            <option value="Projeto 3" />
-            <option value="Projeto 4" />
-            <option value="Projeto 5" />
-          </datalist>
-          <S.Label htmlFor="minutesAmount">durante</S.Label>
-          <S.MinutesInput
-            type="number"
-            id="minutesAmount"
-            placeholder="00"
-            step={5}
-            min={5}
-            max={60}
-            {...register('minutesAmount', { valueAsNumber: true, required: true })}
-          />
-          <S.Suffix>minutos.</S.Suffix>
-        </S.FormHeader>
+        <FormProvider {...newCycleForm}>
+          <NewCycleForm />
+        </FormProvider>
         <CountdownTimer />
-        <S.SubmitButton type="submit" disabled={isSubmitDisabled}>
-          <Play size={24} />
-          Começar
-        </S.SubmitButton>
+        {activeCycle ? (
+          <S.StopCountdownButton type="button" onClick={interruptCurrentCycle}>
+            <HandPalm size={24} />
+            Interromper
+          </S.StopCountdownButton>
+        ) : (
+          <S.StartCountdownButton type="submit" disabled={isSubmitDisabled}>
+            <Play size={24} />
+            Começar
+          </S.StartCountdownButton>
+        )}
       </S.Form>
     </S.Container>
   )

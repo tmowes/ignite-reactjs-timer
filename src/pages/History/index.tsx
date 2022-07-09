@@ -1,6 +1,12 @@
+import { formatDistanceToNow } from 'date-fns'
+import ptBR from 'date-fns/locale/pt-BR'
+
+import { useCycles } from '../../contexts'
 import * as S from './styles'
 
 export function History() {
+  const { cycles } = useCycles()
+
   return (
     <S.Container>
       <S.Title>Meu Histórico</S.Title>
@@ -15,86 +21,25 @@ export function History() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <S.Td>Projeto 1</S.Td>
-              <S.Td>25 minutos</S.Td>
-              <S.Td>Há cerca de 2 meses</S.Td>
-              <S.Td>
-                <S.Status statusColor="green">Em andamento</S.Status>
-              </S.Td>
-            </tr>
-            <tr>
-              <S.Td>Projeto 1</S.Td>
-              <S.Td>25 minutos</S.Td>
-              <S.Td>Há cerca de 2 meses</S.Td>
-              <S.Td>
-                <S.Status statusColor="yellow">Em andamento</S.Status>
-              </S.Td>
-            </tr>
-            <tr>
-              <S.Td>Projeto 1</S.Td>
-              <S.Td>25 minutos</S.Td>
-              <S.Td>Há cerca de 2 meses</S.Td>
-              <S.Td>
-                <S.Status statusColor="red">Em andamento</S.Status>
-              </S.Td>
-            </tr>
-            <tr>
-              <S.Td>Projeto 1</S.Td>
-              <S.Td>25 minutos</S.Td>
-              <S.Td>Há cerca de 2 meses</S.Td>
-              <S.Td>
-                <S.Status statusColor="green">Em andamento</S.Status>
-              </S.Td>
-            </tr>
-            <tr>
-              <S.Td>Projeto 1</S.Td>
-              <S.Td>25 minutos</S.Td>
-              <S.Td>Há cerca de 2 meses</S.Td>
-              <S.Td>
-                <S.Status statusColor="red">Em andamento</S.Status>
-              </S.Td>
-            </tr>
-            <tr>
-              <S.Td>Projeto 1</S.Td>
-              <S.Td>25 minutos</S.Td>
-              <S.Td>Há cerca de 2 meses</S.Td>
-              <S.Td>
-                <S.Status statusColor="yellow">Em andamento</S.Status>
-              </S.Td>
-            </tr>
-            <tr>
-              <S.Td>Projeto 1</S.Td>
-              <S.Td>25 minutos</S.Td>
-              <S.Td>Há cerca de 2 meses</S.Td>
-              <S.Td>
-                <S.Status statusColor="yellow">Em andamento</S.Status>
-              </S.Td>
-            </tr>
-            <tr>
-              <S.Td>Projeto 1</S.Td>
-              <S.Td>25 minutos</S.Td>
-              <S.Td>Há cerca de 2 meses</S.Td>
-              <S.Td>
-                <S.Status statusColor="yellow">Em andamento</S.Status>
-              </S.Td>
-            </tr>
-            <tr>
-              <S.Td>Projeto 1</S.Td>
-              <S.Td>25 minutos</S.Td>
-              <S.Td>Há cerca de 2 meses</S.Td>
-              <S.Td>
-                <S.Status statusColor="yellow">Em andamento</S.Status>
-              </S.Td>
-            </tr>
-            <tr>
-              <S.Td>Projeto 1</S.Td>
-              <S.Td>25 minutos</S.Td>
-              <S.Td>Há cerca de 2 meses</S.Td>
-              <S.Td>
-                <S.Status statusColor="yellow">Em andamento</S.Status>
-              </S.Td>
-            </tr>
+            {cycles.map((cycle) => (
+              <tr key={cycle.id}>
+                <S.Td>{cycle.task}</S.Td>
+                <S.Td>{cycle.minutesAmount} minutos</S.Td>
+                <S.Td>
+                  {formatDistanceToNow(new Date(cycle.startDate), {
+                    addSuffix: true,
+                    locale: ptBR,
+                  })}
+                </S.Td>
+                <S.Td>
+                  {cycle.finishedDate && <S.Status statusColor="green">Concluído</S.Status>}
+                  {cycle.interruptedDate && <S.Status statusColor="red">Interrompido</S.Status>}
+                  {!cycle.finishedDate && !cycle.interruptedDate && (
+                    <S.Status statusColor="yellow">Em andamento</S.Status>
+                  )}
+                </S.Td>
+              </tr>
+            ))}
           </tbody>
         </S.Table>
       </S.Scroll>
